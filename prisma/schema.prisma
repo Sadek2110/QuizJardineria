@@ -1,0 +1,120 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PROFESSOR
+  STUDENT
+}
+
+enum MessageType {
+  GENERAL
+  INDIVIDUAL
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String // Hashed with bcrypt
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  quizzesCreated   Quiz[]    @relation("ProfessorQuizzes")
+  attempts         Attempt[] @relation("StudentAttempts")
+  sentMessages     Message[] @relation("SenderMessages")
+  receivedMessages Message[] @relation("ReceiverMessages")
+}
+
+model Quiz {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  professorId String
+  professor   User       @relation("ProfessorQuizzes", fields: [professorId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  attempts    Attempt[]
+
+  @@index([professorId])
+}
+
+model Question {
+  id      String   @id @default(uuid())
+  text    String
+  order   Int      @default(0)
+  quizId  String
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options Option[]
+  answers Answer[]
+
+  @@index([quizId])
+}
+
+model Option {
+  id             String   @id @default(uuid())
+  text           String
+  isCorrect      Boolean  @default(false)
+  questionId     String
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  studentAnswers Answer[] // Tracks answers selected by students
+
+  @@index([questionId])
+}
+
+model Attempt {
+  id                  String   @id @default(uuid())
+  score               Float // Calculated final score out of 10
+  correctAnswersCount Int
+  totalQuestionsCount Int
+  createdAt           DateTime @default(now())
+
+  // Relations
+  studentId String
+  student   User     @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+
+  @@unique([studentId, quizId]) // Ensures only ONE attempt per student per quiz
+  @@index([quizId])
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  attemptId  String
+  attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionId   String
+  option     Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  content   String
+  type      MessageType @default(INDIVIDUAL)
+  createdAt DateTime    @default(now())
+
+  // Relations
+  senderId   String
+  sender     User    @relation("SenderMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String? // Nullable for general messages
+  receiver   User?   @relation("ReceiverMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([receiverId])
+  @@index([senderId])
+}
