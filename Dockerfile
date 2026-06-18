@@ -1,5 +1,6 @@
 # Multi-stage build
 FROM node:18-alpine AS base
+RUN apk add --no-cache openssl
 
 # 1. Install dependencies
 FROM base AS deps

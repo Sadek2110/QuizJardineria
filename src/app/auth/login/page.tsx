@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GraduationCap, LogIn } from 'lucide-react';
@@ -13,7 +13,7 @@ interface LoginResponse {
   user: { id: string; username: string; email: string; role: 'PROFESSOR' | 'STUDENT' };
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
@@ -107,5 +107,17 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400">
+        Cargando...
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
