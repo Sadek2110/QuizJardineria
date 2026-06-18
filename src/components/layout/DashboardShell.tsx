@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { GraduationCap, LogOut, Menu, X, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { GraduationCap, LogOut, Menu, X } from 'lucide-react';
 import { cn, initials } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 
 export interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: string | React.ComponentType<{ className?: string }>;
   exact?: boolean;
 }
 
@@ -48,7 +49,9 @@ export function DashboardShell({ navItems, user, children }: Props) {
     <nav className="flex flex-1 flex-col gap-1">
       {navItems.map((item) => {
         const active = isActive(item);
-        const Icon = item.icon;
+        const Icon = typeof item.icon === 'string'
+          ? (Icons[item.icon as keyof typeof Icons] as React.ComponentType<{ className?: string }>) || Icons.HelpCircle
+          : item.icon;
         return (
           <Link
             key={item.href}

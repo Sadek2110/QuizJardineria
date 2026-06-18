@@ -1,22 +1,14 @@
 import { redirect } from 'next/navigation';
-import {
-  LayoutDashboard,
-  ClipboardList,
-  BarChart3,
-  Users,
-  MessagesSquare,
-  UserCog,
-} from 'lucide-react';
 import { getSession } from '@/lib/session';
 import { DashboardShell, type NavItem } from '@/components/layout/DashboardShell';
 
 const navItems: NavItem[] = [
-  { href: '/professor', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/professor/quizzes', label: 'Cuestionarios', icon: ClipboardList },
-  { href: '/professor/grades', label: 'Notas', icon: BarChart3 },
-  { href: '/professor/students', label: 'Alumnos', icon: Users },
-  { href: '/professor/messages', label: 'Mensajes', icon: MessagesSquare },
-  { href: '/professor/profile', label: 'Perfil', icon: UserCog },
+  { href: '/professor', label: 'Dashboard', icon: 'LayoutDashboard', exact: true },
+  { href: '/professor/quizzes', label: 'Cuestionarios', icon: 'ClipboardList' },
+  { href: '/professor/grades', label: 'Notas', icon: 'BarChart3' },
+  { href: '/professor/students', label: 'Alumnos', icon: 'Users' },
+  { href: '/professor/messages', label: 'Mensajes', icon: 'MessagesSquare' },
+  { href: '/professor/profile', label: 'Perfil', icon: 'UserCog' },
 ];
 
 export default async function ProfessorLayout({ children }: { children: React.ReactNode }) {
